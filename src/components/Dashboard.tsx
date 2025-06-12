@@ -9,6 +9,7 @@ import {
   deleteDoc,
   doc,
 } from 'firebase/firestore'
+import Image from 'next/image'
 
 interface Dog {
   id: string
@@ -53,10 +54,12 @@ export default function Dashboard({ user }: Props) {
           {dogs.map((d) => (
             <li key={d.id} className='flex items-center space-x-4'>
               {d.imageUrl && (
-                <img
+                <Image
                   src={d.imageUrl}
                   alt={d.name}
-                  className='w-16 h-16 object-cover rounded'
+                  width={64}
+                  height={64}
+                  className='rounded object-cover'
                 />
               )}
               <span className='flex-1'>{d.name}</span>

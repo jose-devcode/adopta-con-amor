@@ -4,6 +4,7 @@ import { doc, getDoc, getDocs, collection } from 'firebase/firestore'
 import { db } from '../../../lib/firebase'
 import ContactForm from '../../../components/ContactForm'
 import { notFound } from 'next/navigation'
+import Image from 'next/image'
 
 export async function generateStaticParams() {
   const snapshot = await getDocs(collection(db, 'dogs'))
@@ -44,11 +45,16 @@ export default async function DogPage({
       <h1 className='text-3xl font-bold'>{name}</h1>
 
       {imageUrl && (
-        <img
-          src={imageUrl}
-          alt={name}
-          className='w-full h-80 object-cover rounded'
-        />
+        <div className='relative w-64 h-64 mx-auto rounded-lg overflow-hidden'>
+          <Image
+            src={imageUrl}
+            alt={name}
+            fill
+            sizes='(max-width: 640px) 90vw, 256px'
+            style={{ objectFit: 'cover' }}
+            priority
+          />
+        </div>
       )}
 
       <div className='grid grid-cols-2 gap-4'>

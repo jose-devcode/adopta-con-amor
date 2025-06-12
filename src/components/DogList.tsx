@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { db } from '../lib/firebase'
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface Dog {
   id: string
@@ -48,10 +49,12 @@ export default function DogList() {
           className='block border rounded overflow-hidden hover:shadow-lg transition'
         >
           {d.imageUrl ? (
-            <img
+            <Image
               src={d.imageUrl}
               alt={d.name}
-              className='w-full h-48 object-cover'
+              width={64}
+              height={64}
+              className='rounded object-cover'
             />
           ) : (
             <div className='w-full h-48 bg-gray-200 flex items-center justify-center'>
