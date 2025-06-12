@@ -1,10 +1,19 @@
-export default function HomePage() {
+'use client'
+import { useRequireAuth } from '../../lib/useAuth'
+import Dashboard from '../../components/Dashboard'
+
+export default function DashboardPage() {
+  const { user, loading } = useRequireAuth()
+
+  if (loading) return <p>Cargando...</p>
+  if (!user) return null
+  if (!user && !loading) {
+    return <p>No autorizado</p>
+  }
+
   return (
-    <main className='p-4'>
-      <h1 className='text-3xl font-bold'>Adoptá con Amor</h1>
-      <p className='mt-2'>
-        Explorá perritos en adopción y encontrá un nuevo compañero.
-      </p>
+    <main>
+      <Dashboard user={user} />
     </main>
   )
 }

@@ -1,10 +1,9 @@
-export default function HomePage() {
+import Login from '../../components/Login'
+export default function LoginPage() {
   return (
     <main className='p-4'>
-      <h1 className='text-3xl font-bold'>Adoptá con Amor</h1>
-      <p className='mt-2'>
-        Explorá perritos en adopción y encontrá un nuevo compañero.
-      </p>
+      <h1 className='text-2xl font-bold'>Acceder</h1>
+      <Login />
     </main>
   )
 }
