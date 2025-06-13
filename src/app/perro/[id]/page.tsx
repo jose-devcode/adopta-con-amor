@@ -9,8 +9,12 @@ export async function generateStaticParams() {
   return snapshot.docs.map((d) => ({ id: d.id }))
 }
 
-export default async function DogPage({ params }: { params: { id: string } }) {
-  const { id } = params
+export default async function DogPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
   const docRef = doc(db, 'dogs', id)
   const docSnap = await getDoc(docRef)
 
