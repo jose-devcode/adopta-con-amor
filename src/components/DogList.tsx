@@ -12,17 +12,14 @@ interface Dog {
   age: string
   description: string
   location: string
-  imageUrl?: string
+  imageUrls?: string[] // <-- ahora es un array
 }
 
 export default function DogList() {
   const [dogs, setDogs] = useState<Dog[]>([])
 
   useEffect(() => {
-    const q = query(
-      collection(db, 'dogs'),
-      orderBy('createdAt', 'desc') // ordenar por más reciente :contentReference[oaicite:2]{index=2}
-    )
+    const q = query(collection(db, 'dogs'), orderBy('createdAt', 'desc'))
     return onSnapshot(q, (snapshot) => {
       setDogs(
         snapshot.docs.map((doc) => {
@@ -33,7 +30,7 @@ export default function DogList() {
             age: data.age,
             description: data.description ?? '',
             location: data.location,
-            imageUrl: data.imageUrl,
+            imageUrls: data.imageUrls ?? [], // ← fallback en array vacío
           }
         })
       )
@@ -48,14 +45,17 @@ export default function DogList() {
           href={`/perro/${d.id}`}
           className='block border rounded overflow-hidden hover:shadow-lg transition'
         >
-          {d.imageUrl ? (
-            <Image
-              src={d.imageUrl}
-              alt={d.name}
-              width={64}
-              height={64}
-              className='rounded object-cover'
-            />
+          {d.imageUrls && d.imageUrls.length > 0 ? (
+            <div className='relative w-full h-48'>
+              <Image
+                src={d.imageUrls[0]} // ← solo mostramos la primera imagen
+                alt={d.name}
+                fill
+                className='object-cover'
+                sizes='(max-width: 640px) 100vw, 33vw'
+                priority
+              />
+            </div>
           ) : (
             <div className='w-full h-48 bg-gray-200 flex items-center justify-center'>
               <span className='text-gray-500'>Sin imagen</span>

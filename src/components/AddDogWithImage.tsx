@@ -6,26 +6,51 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { useRouter } from 'next/navigation'
 
+type Preview = { file: File; url: string }
+
 export default function AddDogWithImage() {
   const [name, setName] = useState('')
   const [age, setAge] = useState('') // Edad del perro
   const [description, setDescription] = useState('') // Descripción
   const [location, setLocation] = useState('') // Ubicación
-  const [file, setFile] = useState<File | null>(null)
+  //const [file, setFile] = useState<File | null>(null)
+  const [previews, setPreviews] = useState<Preview[]>([])
   const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files) return
+
+    const selected = Array.from(files).slice(0, 4 - previews.length)
+    const newPreviews = selected.map((f) => ({
+      file: f,
+      url: URL.createObjectURL(f),
+    }))
+    setPreviews((prev) => [...prev, ...newPreviews])
+    e.target.value = ''
+  }
+
+  const removePreview = (index: number) => {
+    setPreviews((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!name || !age || !description || !location || !file) {
-      alert('Por favor completá todos los campos.')
+    if (!name || !age || !description || !location || previews.length === 0) {
+      alert('Completá todos los campos y subí al menos una imagen.')
       return
     }
 
     // Subir imagen a Firebase Storage
-    const id = `${Date.now()}-${file.name}`
-    const storageRef = ref(storage, `dogs/${id}`)
-    await uploadBytes(storageRef, file)
-    const url = await getDownloadURL(storageRef)
+
+    const imageUrls: string[] = []
+    for (const { file } of previews) {
+      const id = `${Date.now()}-${file.name}`
+      const storageRef = ref(storage, `dogs/${id}`)
+      await uploadBytes(storageRef, file)
+      const url = await getDownloadURL(storageRef)
+      imageUrls.push(url)
+    }
 
     // Guardar en Firestore
     await addDoc(collection(db, 'dogs'), {
@@ -33,10 +58,10 @@ export default function AddDogWithImage() {
       age,
       description,
       location,
-      imageUrl: url,
+      imageUrls,
       createdAt: serverTimestamp(),
       owner: auth.currentUser?.uid,
-      ownerEmail: auth.currentUser?.email, // <-- Agregado
+      ownerEmail: auth.currentUser?.email,
     })
 
     alert('¡Perro agregado con éxito!')
@@ -83,9 +108,29 @@ export default function AddDogWithImage() {
       <input
         type='file'
         accept='image/*'
-        onChange={(e) => setFile(e.target.files?.[0] || null)}
+        multiple
+        onChange={handleFileChange}
+        disabled={previews.length >= 4}
         className='border p-2 rounded'
       />
+
+      {/* vista previa */}
+      {previews.length > 0 && (
+        <div className='grid grid-cols-2 gap-2'>
+          {previews.map((p, i) => (
+            <div key={i} className='relative'>
+              <img src={p.url} className='w-full h-32 object-cover rounded' />
+              <button
+                type='button'
+                onClick={() => removePreview(i)}
+                className='absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm'
+              >
+                &times;
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       <button
         type='submit'
