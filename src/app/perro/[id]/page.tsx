@@ -10,7 +10,8 @@ export async function generateStaticParams() {
 }
 
 export default async function DogPage({ params }: { params: { id: string } }) {
-  const docRef = doc(db, 'dogs', params.id)
+  const { id } = params
+  const docRef = doc(db, 'dogs', id)
   const docSnap = await getDoc(docRef)
 
   if (!docSnap.exists()) return <p>Perro no encontrado.</p>
@@ -30,9 +31,8 @@ export default async function DogPage({ params }: { params: { id: string } }) {
 
       <DogImagesViewer images={data.imageUrls || []} />
 
-      {/* resto de la info del perro... */}
       <ContactForm
-        dogId={params.id}
+        dogId={id}
         dogName={data.name}
         dogOwnerEmail={data.ownerEmail}
       />
