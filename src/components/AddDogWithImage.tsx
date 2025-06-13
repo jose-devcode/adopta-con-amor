@@ -1,3 +1,4 @@
+//./src/components/AddDogWithImage.tsx
 'use client'
 
 import { useState } from 'react'
@@ -5,6 +6,7 @@ import { db, storage, auth } from '../lib/firebase'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 type Preview = { file: File; url: string }
 
@@ -119,7 +121,13 @@ export default function AddDogWithImage() {
         <div className='grid grid-cols-2 gap-2'>
           {previews.map((p, i) => (
             <div key={i} className='relative'>
-              <img src={p.url} className='w-full h-32 object-cover rounded' />
+              <Image
+                src={p.url}
+                alt={`Imagen ${i + 1}`}
+                width={160}
+                height={128}
+                className='w-full h-32 object-cover rounded'
+              />
               <button
                 type='button'
                 onClick={() => removePreview(i)}
